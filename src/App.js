@@ -1,24 +1,58 @@
-import logo from './logo.svg';
-import './App.css';
+import { onAuthStateChanged } from "firebase/auth";
+import { lazy, Suspense, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import "./App.css";
+import NotFound from "./components/NotFound";
+import Auth from "./features/Auth";
+// import { makeServer } from "./server";
+import { authService } from "./services";
+import { setUser } from "./features/Auth/authSlice";
+import { fetchTodos } from "./features/Todo/todoSlice";
+// import { fetchTodosThunk } from "./features/Todo/todoSlice";
+
+// if (process.env.NODE_ENV === "development") {
+//   makeServer({ environment: "development" });
+// }
+
+// lazy load - Code splitting
+const Todo = lazy(() => import("./features/Todo"));
 
 function App() {
+  const dispatch = useDispatch();
+
+  // get all todos
+  // useEffect(() => {
+  //   dispatch(fetchTodosThunk());
+  // }, [dispatch]);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(authService.auth, (currentUser) => {
+      console.log(currentUser);
+      dispatch(setUser(currentUser));
+      if (!currentUser) {
+        const todos = JSON.parse(sessionStorage.getItem("todos")) ?? [];
+        dispatch(fetchTodos(todos));
+      } else {
+        console.log("[dispatch(fetchTodosThunk)]");
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [dispatch]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Suspense fallback={<div>Loading ...</div>}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Todo />} />
+          <Route path="user/*" element={<Auth />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </Suspense>
   );
 }
 
