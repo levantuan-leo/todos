@@ -9,27 +9,12 @@ import {
   SettingOutlined,
   LoginOutlined,
 } from "@ant-design/icons";
-import { Avatar, Button, Divider, Popover, Space, Tooltip } from "antd";
+import { Avatar, Button, Divider, Popover, Space } from "antd";
 import { useSelector } from "react-redux";
 import { authService } from "../../services";
 import { useRef } from "react";
 import PopoverHeader from "./Popover";
-
-function CustomTooltip({ title, children, ...restProps }) {
-  return (
-    <Tooltip
-      title={title}
-      placement="bottomLeft"
-      color={"blue"}
-      overlayInnerStyle={{ borderRadius: 5 }}
-      destroyTooltipOnHide={true}
-      arrowPointAtCenter
-      {...restProps}
-    >
-      {children}
-    </Tooltip>
-  );
-}
+import Tooltip from "../../custom-antd/Tooltip";
 
 function Header() {
   const user = useSelector((state) => state.auth.user);
@@ -73,14 +58,17 @@ function Header() {
         }}
       >
         {!user ? (
-          <Link to="/user">
-            <LoginOutlined />
-          </Link>
+          <Tooltip title="Log in">
+            <Link to="/user">
+              <LoginOutlined />
+            </Link>
+          </Tooltip>
         ) : (
           <div style={{ position: "absolute", top: 0, left: 0, fontSize: 0 }}>
             <Space direction="vertical" style={{ fontSize: 25 }} size="middle">
               <Popover
                 content={<PopoverHeader user={user} />}
+                showArrow={false}
                 placement={"bottomRight"}
                 overlayInnerStyle={{ borderRadius: 5 }}
               >
@@ -107,17 +95,17 @@ function Header() {
                   transition: "all 500ms ease",
                 }}
               >
-                <CustomTooltip title="User's profile">
+                <Tooltip title="User's profile">
                   <Link to={"/"}>
                     <UserOutlined />
                   </Link>
-                </CustomTooltip>
+                </Tooltip>
 
-                <CustomTooltip title="Settings">
+                <Tooltip title="Settings">
                   <Link to={"/"}>
                     <SettingOutlined />
                   </Link>
-                </CustomTooltip>
+                </Tooltip>
 
                 <Divider
                   style={{
@@ -127,7 +115,7 @@ function Header() {
                   }}
                 />
 
-                <CustomTooltip title="Logout">
+                <Tooltip title="Log out">
                   <Button
                     onClick={handleLogOut}
                     type="link"
@@ -135,7 +123,7 @@ function Header() {
                   >
                     <LogoutOutlined />
                   </Button>
-                </CustomTooltip>
+                </Tooltip>
               </Space>
             </Space>
           </div>

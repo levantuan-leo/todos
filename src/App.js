@@ -5,15 +5,18 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
 import NotFound from "./components/NotFound";
 import Auth from "./features/Auth";
-// import { makeServer } from "./server";
 import { authService } from "./services";
 import { setUser } from "./features/Auth/authSlice";
-import { fetchTodos } from "./features/Todo/todoSlice";
+import { fetchTodosThunk, getTodos } from "./features/Todo/todoSlice";
+
+//------------------mirage js--------------------------
+// import { makeServer } from "./server";
 // import { fetchTodosThunk } from "./features/Todo/todoSlice";
 
 // if (process.env.NODE_ENV === "development") {
 //   makeServer({ environment: "development" });
 // }
+//------------------------------------------------------
 
 // lazy load - Code splitting
 const Todo = lazy(() => import("./features/Todo"));
@@ -21,20 +24,15 @@ const Todo = lazy(() => import("./features/Todo"));
 function App() {
   const dispatch = useDispatch();
 
-  // get all todos
-  // useEffect(() => {
-  //   dispatch(fetchTodosThunk());
-  // }, [dispatch]);
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(authService.auth, (currentUser) => {
-      console.log(currentUser);
+      // console.log(currentUser);
       dispatch(setUser(currentUser));
       if (!currentUser) {
         const todos = JSON.parse(sessionStorage.getItem("todos")) ?? [];
-        dispatch(fetchTodos(todos));
+        dispatch(getTodos(todos));
       } else {
-        console.log("[dispatch(fetchTodosThunk)]");
+        dispatch(fetchTodosThunk());
       }
     });
 

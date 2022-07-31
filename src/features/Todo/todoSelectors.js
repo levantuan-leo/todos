@@ -8,9 +8,7 @@ const todoRemainingSelector = createSelector(
       return (
         todo.name.toLowerCase().includes(filters.search.toLowerCase()) &&
         (filters.status === "All" ||
-          (filters.status === "Completed"
-            ? todo.isCompleted
-            : !todo.isCompleted)) &&
+          (filters.status === "Completed" ? todo.status : !todo.status)) &&
         (filters.priorities.length > 0
           ? filters.priorities.includes(todo.priority)
           : true)

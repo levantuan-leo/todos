@@ -1,17 +1,23 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { todoService } from "../../services";
+import { authService } from "../../services";
 
-const initialValues = { todos: [], loading: "idle", error: null };
+const initialValues = {
+  todos: [],
+  loading: "idle",
+  error: null,
+  pagination: { totalPage: null, page: 1, limit: 6 },
+};
 
 const todo = createSlice({
   name: "todo",
   initialState: initialValues,
   reducers: {
-    fetchTodos(state, action) {
+    getTodos(state, action) {
       state.todos = action.payload;
     },
     addTodo(state, action) {
-      state.todos.push({ ...action.payload, isCompleted: false });
+      state.todos.push({ ...action.payload, status: false });
 
       // save to session storage
       sessionStorage.setItem("todos", JSON.stringify(state.todos));
@@ -27,6 +33,12 @@ const todo = createSlice({
       // save to session storage
       sessionStorage.setItem("todos", JSON.stringify(state.todos));
     },
+    setPagination(state, action) {
+      state.pagination.page = action.payload;
+    },
+    setTotalPage(state, action) {
+      state.pagination.totalPage = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -35,7 +47,6 @@ const todo = createSlice({
         state.status = "loading";
       })
       .addCase(fetchTodosThunk.fulfilled, (state, action) => {
-        // console.log(action);
         state.todos = action.payload;
         state.loading = "idle";
       })
@@ -81,17 +92,27 @@ const todo = createSlice({
 // createAsyncThunk()
 // return value: 3 actions (pending, fulfilled, rejected) & 1 thunk action creator
 //----------------------------
-const fetchTodosThunk = createAsyncThunk("todos/fetchTodos", async () => {
-  const res = await todoService.fetchTodos();
-  return res.todos;
-});
+const fetchTodosThunk = createAsyncThunk(
+  "todos/fetchTodos",
+  async (payload, { dispatch, getState }) => {
+    const pagination = payload || getState().todos.pagination;
+
+    const todos = await todoService.fetchTodos();
+    const totalTodos = todos.length;
+    dispatch(setTotalPage(Math.ceil(totalTodos / pagination.limit)));
+
+    const res = await todoService.fetchTodos(pagination);
+    dispatch(setPagination(pagination.page));
+    return res;
+  }
+);
 
 const addTodoThunk = createAsyncThunk(
   "todos/addTodo",
-  async ({ isUser, newTodo }, { dispatch, rejectWithValue }) => {
-    if (isUser) {
+  async (newTodo, { dispatch, rejectWithValue }) => {
+    if (authService.auth.currentUser) {
       const res = await todoService.insertTodo(newTodo);
-      return res.todos;
+      return res;
     } else {
       dispatch(addTodo(newTodo));
       return rejectWithValue("You are not logged in.");
@@ -101,12 +122,11 @@ const addTodoThunk = createAsyncThunk(
 
 const updateTodoThunk = createAsyncThunk(
   "todos/updateTodo",
-  async ({ isUser, editedTodo }, { dispatch, rejectWithValue }) => {
-    if (isUser) {
+  async (editedTodo, { dispatch, rejectWithValue }) => {
+    if (authService.auth.currentUser) {
       const res = await todoService.updateTodo(editedTodo);
-      return res.todos;
+      return res;
     } else {
-      console.log(isUser, editedTodo);
       dispatch(toggleTodoStatus(editedTodo));
       return rejectWithValue("You are not logged in.");
     }
@@ -115,5 +135,11 @@ const updateTodoThunk = createAsyncThunk(
 
 const { actions, reducer } = todo;
 export { fetchTodosThunk, addTodoThunk, updateTodoThunk };
-export const { fetchTodos, addTodo, toggleTodoStatus } = actions;
+export const {
+  setTotalPage,
+  setPagination,
+  getTodos,
+  addTodo,
+  toggleTodoStatus,
+} = actions;
 export default reducer;

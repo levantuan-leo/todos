@@ -1,9 +1,13 @@
 import axiosClient from "./axiosClient";
+import { auth } from "./authService";
 
-const fetchTodos = async () => {
+const fetchTodos = async (pagination) => {
   try {
-    const res = await axiosClient.get("/todos");
-    console.log("[fetchTodos]: ", res);
+    const { limit, page } = pagination ?? {};
+    const res = await axiosClient.get(`user/${auth.currentUser.uid}/todos`, {
+      params: { limit, page },
+    });
+    console.log("[getTodos]: ", res);
     //---------------------
     return res.data;
   } catch (error) {
@@ -13,11 +17,13 @@ const fetchTodos = async () => {
 
 const insertTodo = async (payload = {}) => {
   try {
-    const res = await axiosClient.post("/todos/add", payload);
-    if (res.status === 201) res.todos = payload;
+    const res = await axiosClient.post(
+      `user/${auth.currentUser.uid}/todos`,
+      payload
+    );
     console.log("[insertTodo]: ", res);
     //---------------------
-    return res;
+    return res.data;
   } catch (error) {
     console.log(error);
   }
@@ -25,11 +31,13 @@ const insertTodo = async (payload = {}) => {
 
 const updateTodo = async (payload = {}) => {
   try {
-    const res = await axiosClient.put("/todos/update", payload);
-    if (res.status === 204) res.todos = payload;
+    const res = await axiosClient.put(
+      `user/${auth.currentUser.uid}/todos/${payload.id}`,
+      payload
+    );
     console.log("[updateTodo]: ", res);
     //---------------------
-    return res;
+    return res.data;
   } catch (error) {
     console.log(error);
   }

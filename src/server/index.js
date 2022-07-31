@@ -13,19 +13,19 @@ const makeServer = ({ environment = "test" } = {}) => {
       server.create("todo", {
         id: "1",
         name: "Learn React",
-        isCompleted: false,
+        status: false,
         priority: "High",
       });
       server.create("todo", {
         id: "2",
         name: "Learn Redux",
-        isCompleted: true,
+        status: true,
         priority: "Medium",
       });
       server.create("todo", {
         id: "3",
         name: "Learn JavaScript",
-        isCompleted: false,
+        status: false,
         priority: "Low",
       });
     },
@@ -39,13 +39,13 @@ const makeServer = ({ environment = "test" } = {}) => {
       });
 
       // add new todo
-      this.post("/todos/add", (schema, request) => {
+      this.post("/todos", (schema, request) => {
         const payload = JSON.parse(request.requestBody);
         schema.create("todo", payload);
       });
 
       // update todo
-      this.put("/todos/update", (schema, request) => {
+      this.put("/todos", (schema, request) => {
         const payload = JSON.parse(request.requestBody);
         // get current todo to update via "id"
         let currentTodo = schema.find("todo", payload.id);

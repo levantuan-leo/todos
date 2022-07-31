@@ -1,11 +1,12 @@
 import { Col, Row, Input, Button, Select, Tag } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { useState } from "react";
-import uuid from "react-uuid";
+// import uuid from "react-uuid";
 import TodoItem from "../TodoItem";
-import { addTodoThunk } from "../../todoSlice";
+import { addTodoThunk, fetchTodosThunk } from "../../todoSlice";
 import { todoRemainingSelector } from "../../todoSelectors";
 import Spinner from "../../../../components/Spinner";
+import { DownOutlined, UpOutlined } from "@ant-design/icons";
 
 export default function TodoList() {
   const dispatch = useDispatch();
@@ -13,28 +14,57 @@ export default function TodoList() {
   const [priority, setPriority] = useState("Medium");
   const todos = useSelector(todoRemainingSelector);
   const loading = useSelector((state) => state.todos.loading);
-  const user = useSelector((state) => state.auth.user);
-  const isUser = !!user;
+  const { totalPage, page, limit } = useSelector(
+    (state) => state.todos.pagination
+  );
 
   const handleAddTodo = () => {
-    const action = addTodoThunk({
-      isUser: isUser,
-      newTodo: { id: uuid(), name: todo, priority },
-    });
+    // const action = addTodoThunk({ id: uuid(), name: todo, priority });
+    const action = addTodoThunk({ name: todo, priority });
     dispatch(action);
     // ----------------- reset form------------------
     setTodo("");
     setPriority("Medium");
   };
 
+  const handlePaginationPrev = () => {
+    dispatch(fetchTodosThunk({ limit, page: page - 1 }));
+  };
+
+  const handlePaginationNext = () => {
+    dispatch(fetchTodosThunk({ limit, page: page + 1 }));
+  };
+
   return (
     <Row style={{ height: "calc(100% - 40px)" }}>
-      <Col span={24} style={{ height: "calc(100% - 40px)", overflowY: "auto" }}>
-        <Spinner loading={loading === "loading"}>
-          {todos.map((todo) => (
-            <TodoItem key={todo.id} isUser={isUser} todo={todo} />
-          ))}
-        </Spinner>
+      <Col
+        span={24}
+        style={{
+          height: "calc(100% - 40px)",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+        }}
+      >
+        <Button
+          disabled={page === 1}
+          icon={<UpOutlined />}
+          style={{ fontSize: "unset", height: "unset" }}
+          onClick={handlePaginationPrev}
+        />
+        <div style={{ margin: "5px 0", flexGrow: "1" }}>
+          <Spinner loading={loading === "loading"}>
+            {todos.map((todo) => (
+              <TodoItem key={todo.id} todo={todo} />
+            ))}
+          </Spinner>
+        </div>
+        <Button
+          disabled={page === totalPage}
+          icon={<DownOutlined />}
+          style={{ fontSize: "unset", height: "unset" }}
+          onClick={handlePaginationNext}
+        />
       </Col>
 
       <Col span={24}>
