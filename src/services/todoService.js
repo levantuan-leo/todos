@@ -29,6 +29,19 @@ const insertTodo = async (payload = {}) => {
   }
 };
 
+const deleteTodo = async (id) => {
+  try {
+    const res = await axiosClient.post(
+      `user/${auth.currentUser.uid}/todos/${id}`
+    );
+    console.log("[deleteTodo]: ", res);
+    //---------------------
+    return res.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const updateTodo = async (payload = {}) => {
   try {
     const res = await axiosClient.put(
@@ -43,4 +56,4 @@ const updateTodo = async (payload = {}) => {
   }
 };
 
-export { fetchTodos, insertTodo, updateTodo };
+export { fetchTodos, insertTodo, deleteTodo, updateTodo };

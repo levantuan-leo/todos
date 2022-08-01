@@ -1,12 +1,12 @@
-import { Col, Row, Input, Button, Select, Tag } from "antd";
+import { Col, Row, Input, Button, Select, Tag, Space } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { useState } from "react";
-// import uuid from "react-uuid";
+import uuid from "react-uuid";
 import TodoItem from "../TodoItem";
 import { addTodoThunk, fetchTodosThunk } from "../../todoSlice";
 import { todoRemainingSelector } from "../../todoSelectors";
 import Spinner from "../../../../components/Spinner";
-import { DownOutlined, UpOutlined } from "@ant-design/icons";
+import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 
 export default function TodoList() {
   const dispatch = useDispatch();
@@ -19,8 +19,7 @@ export default function TodoList() {
   );
 
   const handleAddTodo = () => {
-    // const action = addTodoThunk({ id: uuid(), name: todo, priority });
-    const action = addTodoThunk({ name: todo, priority });
+    const action = addTodoThunk({ id: uuid(), name: todo, priority });
     dispatch(action);
     // ----------------- reset form------------------
     setTodo("");
@@ -46,12 +45,27 @@ export default function TodoList() {
           justifyContent: "space-between",
         }}
       >
-        <Button
-          disabled={page === 1}
-          icon={<UpOutlined />}
-          style={{ fontSize: "unset", height: "unset" }}
-          onClick={handlePaginationPrev}
-        />
+        <div
+          style={{
+            display: totalPage > 1 ? "block" : "none",
+            marginBottom: 5,
+          }}
+        >
+          <Space size={"small"}>
+            <Button
+              disabled={page === 1}
+              icon={<LeftOutlined />}
+              style={{ fontSize: "unset", height: "unset" }}
+              onClick={handlePaginationPrev}
+            />
+            <Button
+              disabled={page === totalPage}
+              icon={<RightOutlined />}
+              style={{ fontSize: "unset", height: "unset" }}
+              onClick={handlePaginationNext}
+            />
+          </Space>
+        </div>
         <div style={{ margin: "5px 0", flexGrow: "1" }}>
           <Spinner loading={loading === "loading"}>
             {todos.map((todo) => (
@@ -59,12 +73,6 @@ export default function TodoList() {
             ))}
           </Spinner>
         </div>
-        <Button
-          disabled={page === totalPage}
-          icon={<DownOutlined />}
-          style={{ fontSize: "unset", height: "unset" }}
-          onClick={handlePaginationNext}
-        />
       </Col>
 
       <Col span={24}>

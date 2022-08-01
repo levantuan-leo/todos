@@ -7,7 +7,7 @@ import NotFound from "./components/NotFound";
 import Auth from "./features/Auth";
 import { authService } from "./services";
 import { setUser } from "./features/Auth/authSlice";
-import { fetchTodosThunk, getTodos } from "./features/Todo/todoSlice";
+import { fetchTodosThunk } from "./features/Todo/todoSlice";
 
 //------------------mirage js--------------------------
 // import { makeServer } from "./server";
@@ -26,14 +26,11 @@ function App() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(authService.auth, (currentUser) => {
-      // console.log(currentUser);
+      console.log(currentUser);
       dispatch(setUser(currentUser));
-      if (!currentUser) {
-        const todos = JSON.parse(sessionStorage.getItem("todos")) ?? [];
-        dispatch(getTodos(todos));
-      } else {
-        dispatch(fetchTodosThunk());
-      }
+
+      // get all todos
+      dispatch(fetchTodosThunk());
     });
 
     return () => {
