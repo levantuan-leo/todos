@@ -14,7 +14,7 @@ import { useSelector } from "react-redux";
 import { authService } from "../../services";
 import { useRef } from "react";
 import PopoverHeader from "./Popover";
-import Tooltip from "../../custom-antd/Tooltip";
+import CustomTooltip from "../../custom-antd/Tooltip";
 
 function Header() {
   const user = useSelector((state) => state.auth.user);
@@ -58,11 +58,11 @@ function Header() {
         }}
       >
         {!user ? (
-          <Tooltip title="Log in">
+          <CustomTooltip title="Log in">
             <Link to="/user">
               <LoginOutlined />
             </Link>
-          </Tooltip>
+          </CustomTooltip>
         ) : (
           <div style={{ position: "absolute", top: 0, left: 0, fontSize: 0 }}>
             <Space direction="vertical" style={{ fontSize: 25 }} size="middle">
@@ -95,17 +95,17 @@ function Header() {
                   transition: "all 500ms ease",
                 }}
               >
-                <Tooltip title="User's profile">
+                <CustomTooltip title="User's profile">
                   <Link to={"/"}>
                     <UserOutlined />
                   </Link>
-                </Tooltip>
+                </CustomTooltip>
 
-                <Tooltip title="Settings">
+                <CustomTooltip title="Settings">
                   <Link to={"/"}>
                     <SettingOutlined />
                   </Link>
-                </Tooltip>
+                </CustomTooltip>
 
                 <Divider
                   style={{
@@ -115,7 +115,7 @@ function Header() {
                   }}
                 />
 
-                <Tooltip title="Log out">
+                <CustomTooltip title="Log out">
                   <Button
                     onClick={handleLogOut}
                     type="link"
@@ -123,7 +123,7 @@ function Header() {
                   >
                     <LogoutOutlined />
                   </Button>
-                </Tooltip>
+                </CustomTooltip>
               </Space>
             </Space>
           </div>

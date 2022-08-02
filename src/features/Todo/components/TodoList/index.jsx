@@ -1,6 +1,6 @@
 import { Col, Row, Button, Space } from "antd";
 import { useSelector, useDispatch } from "react-redux";
-import { useState, useEffect } from "react";
+// import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import uuid from "react-uuid";
 import TodoItem from "../TodoItem";
@@ -22,8 +22,9 @@ export default function TodoList() {
   const editMode = !!todoId;
   // ------------------------------------------------
   const { todos, pagination } = useSelector(todoRemainingSelector);
-  const currentTodo = todos.find((todo) => todo.id === todoId);
   const loading = useSelector((state) => state.todos.loading);
+  // ----------------------------------------------------------
+  const currentTodo = todos.find((todo) => todo.id === todoId);
   const { totalPage, page, limit } = pagination;
 
   const initialValues = {
@@ -31,54 +32,18 @@ export default function TodoList() {
     priority: "Medium",
   };
 
-  // useEffect(() => {
-  //   if (editMode) {
-  //     const currentTodo = todos.find((todo) => todo.id === todoId);
-  //     setTodo(currentTodo.name);
-  //     setPriority(currentTodo.priority);
-  //   }
-  // }, [todoId, editMode, todos]);
-
   const handleSubmit = (values, actions) => {
-    const promise = new Promise((resolve) => {
-      if (editMode) {
-        dispatch(updateTodoThunk(values));
-        navigate("/");
-      } else {
-        const action = addTodoThunk({ id: uuid(), ...values });
-        dispatch(action);
-      }
+    if (editMode) {
+      dispatch(updateTodoThunk(values));
+      navigate("/");
+    } else {
+      dispatch(addTodoThunk({ id: uuid(), ...values }));
+    }
 
-      resolve();
-    });
-
-    promise.then(() => {
-      // reset form
-      actions.setSubmitting(false);
-      actions.resetForm({ values: initialValues });
-    });
+    // reset form
+    actions.setSubmitting(false);
+    actions.resetForm({ values: initialValues });
   };
-
-  // const handleAddTodo = () => {
-  //   const action = addTodoThunk({ id: uuid(), name: todo, priority });
-  //   dispatch(action);
-  //   // ----------------- reset form------------------
-  //   setTodo("");
-  //   setPriority("Medium");
-  // };
-  // const handleEditTodo = () => {
-  //   const currentTodo = todos.find((todo) => todo.id === todoId);
-  //   const action = updateTodoThunk({
-  //     ...currentTodo,
-  //     name: todo,
-  //     priority: priority,
-  //   });
-  //   dispatch(action);
-  //   navigate("/");
-  //   // ----------------- reset form------------------
-  //   setTodo("");
-  //   setPriority("Medium");
-  // };
 
   const handlePaginationPrev = () => {
     dispatch(fetchTodosThunk({ limit, page: page - 1 }));
@@ -131,11 +96,7 @@ export default function TodoList() {
       <Col span={24}>
         <TodoForm
           editMode={editMode}
-          initialValues={
-            editMode
-              ? { name: currentTodo.name, priority: currentTodo.priority }
-              : initialValues
-          }
+          initialValues={editMode ? { ...currentTodo } : initialValues}
           onSubmit={handleSubmit}
         />
       </Col>

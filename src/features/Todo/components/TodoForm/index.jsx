@@ -22,16 +22,14 @@ function TodoForm(props) {
     priority: Yup.string().required(),
   });
 
-  console.log(initialValues);
   return (
     <Formik
+      enableReinitialize={true}
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={onSubmit}
     >
-      {(formikProps) => {
-        console.log({ formikProps });
-
+      {(_) => {
         return (
           <Form>
             <Input.Group style={{ display: "flex" }} compact>

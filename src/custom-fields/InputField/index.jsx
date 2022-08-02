@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Input } from "antd";
-import { InfoCircleOutlined } from "@ant-design/icons";
+import ErrorMessage from "../../components/ErrorMessage";
 
 InputField.propTypes = {
   field: PropTypes.object.isRequired,
@@ -11,6 +11,9 @@ InputField.propTypes = {
   htmlType: PropTypes.string,
   disabled: PropTypes.bool,
   placeholder: PropTypes.string,
+  suffix: PropTypes.node,
+  prefix: PropTypes.node,
+  size: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
 
 InputField.defaultProps = {
@@ -18,15 +21,29 @@ InputField.defaultProps = {
   htmlType: "text",
   disabled: false,
   placeholder: "",
+  suffix: <></>,
+  prefix: <></>,
+  size: "default",
 };
 
 function InputField(props) {
-  const { field, form, label, htmlType, disabled, placeholder } = props;
+  const {
+    field,
+    form,
+    label,
+    htmlType,
+    disabled,
+    placeholder,
+    suffix,
+    prefix,
+    size,
+  } = props;
   const { name } = field;
   const { errors, touched } = form;
   const showError = errors[name] && touched[name];
 
-  const InputType = htmlType !== "text" ? Input[htmlType] : Input;
+  const InputType =
+    htmlType !== htmlType.toLowerCase() ? Input[htmlType] : Input;
 
   return (
     <div style={{ flexGrow: 1 }}>
@@ -34,10 +51,14 @@ function InputField(props) {
       <InputType
         {...field}
         status={showError ? "error" : ""}
-        suffix={showError ? <InfoCircleOutlined /> : null}
+        suffix={suffix || <></>}
+        prefix={prefix || <></>}
         placeholder={placeholder}
+        type={htmlType}
         disabled={disabled}
+        size={size}
       />
+      {showError && <ErrorMessage error={errors[name]} />}
     </div>
   );
 }
