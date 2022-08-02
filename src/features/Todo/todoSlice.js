@@ -6,65 +6,31 @@ const initialValues = {
   todos: [],
   loading: "idle",
   error: null,
-  pagination: { totalPage: null, page: 1, limit: 6 },
+  pagination: { page: 1, limit: 6 },
 };
 
 const todo = createSlice({
   name: "todo",
   initialState: initialValues,
   reducers: {
-    getTodos(state, action) {
-      const pagination = action.payload;
-
-      const todos = JSON.parse(sessionStorage.getItem("todos")) ?? [];
-      const totalTodos = todos.length;
-      state.pagination = {
-        ...pagination,
-        totalPage: Math.ceil(totalTodos / pagination.limit),
-      };
-
-      const newTodos = todos.slice(
-        (pagination.page - 1) * pagination.limit,
-        pagination.limit * pagination.page
-      );
-      state.todos = newTodos;
+    getTodos(state, _) {
+      state.todos = JSON.parse(sessionStorage.getItem("todos")) ?? [];
     },
     addTodo(state, action) {
-      const todos = JSON.parse(sessionStorage.getItem("todos")) ?? [];
-      todos.push({ ...action.payload, status: false });
-      if (state.todos.length < state.pagination.limit)
-        state.todos = todos.slice(
-          (state.pagination.page - 1) * state.pagination.limit,
-          state.pagination.limit * state.pagination.page
-        );
-
-      const totalTodos = todos.length;
-      state.pagination.totalPage = Math.ceil(
-        totalTodos / state.pagination.limit
-      );
+      state.todos.push({ ...action.payload, status: false });
 
       // save to session storage
-      sessionStorage.setItem("todos", JSON.stringify(todos));
+      sessionStorage.setItem("todos", JSON.stringify(state.todos));
     },
     deleteTodo(state, action) {
-      const todos = JSON.parse(sessionStorage.getItem("todos"));
-      const index = todos.indexOf(
-        todos.find((todo) => todo.id === action.payload)
+      const index = state.todos.indexOf(
+        state.todos.find((todo) => todo.id === action.payload)
       );
-
-      todos.splice(index, 1);
-      state.todos = todos.slice(
-        (state.pagination.page - 1) * state.pagination.limit,
-        state.pagination.limit * state.pagination.page
-      );
-
-      const totalTodos = todos.length;
-      state.pagination.totalPage = Math.ceil(
-        totalTodos / state.pagination.limit
-      );
+      // delete a todo at index
+      state.todos.splice(index, 1);
 
       // save to session storage
-      sessionStorage.setItem("todos", JSON.stringify(todos));
+      sessionStorage.setItem("todos", JSON.stringify(state.todos));
     },
     updateTodo(state, action) {
       const payload = action.payload;
@@ -85,7 +51,7 @@ const todo = createSlice({
     builder
       // fetch todos
       .addCase(fetchTodosThunk.pending, (state, _) => {
-        state.status = "loading";
+        state.loading = "loading";
       })
       .addCase(fetchTodosThunk.fulfilled, (state, action) => {
         state.todos = action.payload;
@@ -99,25 +65,31 @@ const todo = createSlice({
           "\n[action]: ",
           action
         );
+        state.loading = "idle";
       })
       // add todo
+      .addCase(addTodoThunk.pending, (state, _) => {
+        state.loading = "loading";
+      })
       .addCase(addTodoThunk.fulfilled, (state, action) => {
-        if (state.todos.length < state.pagination.limit)
-          state.todos.push(action.payload);
+        state.todos.push(action.payload);
+        state.loading = "idle";
       })
       .addCase(addTodoThunk.rejected, (state, action) => {
         state.error = action.payload;
+        state.loading = "idle";
       })
       // delete todo
+      .addCase(deleteTodoThunk.pending, (state, _) => {
+        state.loading = "loading";
+      })
       .addCase(deleteTodoThunk.fulfilled, (state, action) => {
-        state.todos.splice(
-          state.todos.indexOf(
-            state.todos.find((todo) => todo.id === action.payload)
-          )
-        );
+        state.todos = action.payload;
+        state.loading = "idle";
       })
       .addCase(deleteTodoThunk.rejected, (state, action) => {
         state.error = action.payload;
+        state.loading = "idle";
       })
       // update todo
       .addCase(updateTodoThunk.pending, (state, _) => {
@@ -149,23 +121,14 @@ const fetchTodosThunk = createAsyncThunk(
   "todos/fetchTodos",
   async (payload, { dispatch, getState, rejectWithValue }) => {
     const pagination = payload || getState().todos.pagination;
+    dispatch(setPagination(pagination));
 
     if (authService.auth.currentUser) {
       const todos = await todoService.fetchTodos();
-      const totalTodos = todos.length;
-
-      dispatch(
-        setPagination({
-          ...pagination,
-          totalPage: Math.ceil(totalTodos / pagination.limit),
-        })
-      );
-
-      const res = await todoService.fetchTodos(pagination);
-      return res;
+      return todos;
     } else {
       // User are not logged in
-      dispatch(getTodos(pagination));
+      dispatch(getTodos());
       return rejectWithValue("You are not logged in.");
     }
   }
@@ -186,10 +149,13 @@ const addTodoThunk = createAsyncThunk(
 
 const deleteTodoThunk = createAsyncThunk(
   "todos/deleteTodo",
-  async (todoId, { dispatch, rejectWithValue }) => {
+  async (todoId, { dispatch, rejectWithValue, getState }) => {
     if (authService.auth.currentUser) {
-      const res = todoService.deleteTodo(todoId);
-      return res;
+      // currently not use response
+      await todoService.deleteTodo(todoId);
+
+      const todos = await todoService.fetchTodos();
+      return todos;
     } else {
       dispatch(deleteTodo(todoId));
       return rejectWithValue("You are not logged in.");

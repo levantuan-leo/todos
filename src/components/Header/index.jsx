@@ -133,7 +133,7 @@ function Header() {
       <div style={{ fontSize: 20 }}>
         <Space direction="vertical" size={4}>
           <a
-            href="https://github.com/"
+            href="https://github.com/lvt-512/todos"
             target={"_blank"}
             rel="noopener noreferrer"
           >

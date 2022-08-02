@@ -43,6 +43,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Todo />} />
+          <Route path="/:todoId" element={<Todo />} />
           <Route path="user/*" element={<Auth />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

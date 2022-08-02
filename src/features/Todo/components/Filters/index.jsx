@@ -38,7 +38,7 @@ export default function Filters() {
         <Search
           value={searchText}
           onChange={(e) => handleSearchChange(e.target.value)}
-          placeholder="input search text"
+          placeholder="Input search text ..."
         />
       </Col>
       <Col sm={24}>

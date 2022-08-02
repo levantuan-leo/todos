@@ -31,7 +31,7 @@ const insertTodo = async (payload = {}) => {
 
 const deleteTodo = async (id) => {
   try {
-    const res = await axiosClient.post(
+    const res = await axiosClient.delete(
       `user/${auth.currentUser.uid}/todos/${id}`
     );
     console.log("[deleteTodo]: ", res);
