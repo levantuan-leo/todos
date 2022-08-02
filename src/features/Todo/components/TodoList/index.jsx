@@ -1,4 +1,4 @@
-import { Col, Row, Input, Button, Select, Tag, Space } from "antd";
+import { Col, Row, Button, Space } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -12,6 +12,7 @@ import {
 import { todoRemainingSelector } from "../../todoSelectors";
 import Spinner from "../../../../components/Spinner";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
+import TodoForm from "../TodoForm";
 
 export default function TodoList() {
   const dispatch = useDispatch();
@@ -21,40 +22,63 @@ export default function TodoList() {
   const editMode = !!todoId;
   // ------------------------------------------------
   const { todos, pagination } = useSelector(todoRemainingSelector);
+  const currentTodo = todos.find((todo) => todo.id === todoId);
   const loading = useSelector((state) => state.todos.loading);
   const { totalPage, page, limit } = pagination;
-  // --------------------------------------
-  const [todo, setTodo] = useState("");
-  const [priority, setPriority] = useState("Medium");
 
-  useEffect(() => {
-    if (editMode) {
-      const currentTodo = todos.find((todo) => todo.id === todoId);
-      setTodo(currentTodo.name);
-      setPriority(currentTodo.priority);
-    }
-  }, [todoId, editMode, todos]);
-
-  const handleAddTodo = () => {
-    const action = addTodoThunk({ id: uuid(), name: todo, priority });
-    dispatch(action);
-    // ----------------- reset form------------------
-    setTodo("");
-    setPriority("Medium");
+  const initialValues = {
+    name: "",
+    priority: "Medium",
   };
-  const handleEditTodo = () => {
-    const currentTodo = todos.find((todo) => todo.id === todoId);
-    const action = updateTodoThunk({
-      ...currentTodo,
-      name: todo,
-      priority: priority,
+
+  // useEffect(() => {
+  //   if (editMode) {
+  //     const currentTodo = todos.find((todo) => todo.id === todoId);
+  //     setTodo(currentTodo.name);
+  //     setPriority(currentTodo.priority);
+  //   }
+  // }, [todoId, editMode, todos]);
+
+  const handleSubmit = (values, actions) => {
+    const promise = new Promise((resolve) => {
+      if (editMode) {
+        dispatch(updateTodoThunk(values));
+        navigate("/");
+      } else {
+        const action = addTodoThunk({ id: uuid(), ...values });
+        dispatch(action);
+      }
+
+      resolve();
     });
-    dispatch(action);
-    navigate("/");
-    // ----------------- reset form------------------
-    setTodo("");
-    setPriority("Medium");
+
+    promise.then(() => {
+      // reset form
+      actions.setSubmitting(false);
+      actions.resetForm({ values: initialValues });
+    });
   };
+
+  // const handleAddTodo = () => {
+  //   const action = addTodoThunk({ id: uuid(), name: todo, priority });
+  //   dispatch(action);
+  //   // ----------------- reset form------------------
+  //   setTodo("");
+  //   setPriority("Medium");
+  // };
+  // const handleEditTodo = () => {
+  //   const currentTodo = todos.find((todo) => todo.id === todoId);
+  //   const action = updateTodoThunk({
+  //     ...currentTodo,
+  //     name: todo,
+  //     priority: priority,
+  //   });
+  //   dispatch(action);
+  //   navigate("/");
+  //   // ----------------- reset form------------------
+  //   setTodo("");
+  //   setPriority("Medium");
+  // };
 
   const handlePaginationPrev = () => {
     dispatch(fetchTodosThunk({ limit, page: page - 1 }));
@@ -105,30 +129,15 @@ export default function TodoList() {
       </Col>
 
       <Col span={24}>
-        <Input.Group style={{ display: "flex" }} compact>
-          <Input
-            value={todo}
-            onChange={(e) => setTodo(e.target.value)}
-            placeholder="Enter your todo ..."
-          />
-          <Select value={priority} onChange={(value) => setPriority(value)}>
-            <Select.Option value="High" label="High">
-              <Tag color="red">High</Tag>
-            </Select.Option>
-            <Select.Option value="Medium" label="Medium">
-              <Tag color="blue">Medium</Tag>
-            </Select.Option>
-            <Select.Option value="Low" label="Low">
-              <Tag color="gray">Low</Tag>
-            </Select.Option>
-          </Select>
-          <Button
-            type={editMode ? "danger" : "primary"}
-            onClick={editMode ? handleEditTodo : handleAddTodo}
-          >
-            {editMode ? "Update" : "Add"}
-          </Button>
-        </Input.Group>
+        <TodoForm
+          editMode={editMode}
+          initialValues={
+            editMode
+              ? { name: currentTodo.name, priority: currentTodo.priority }
+              : initialValues
+          }
+          onSubmit={handleSubmit}
+        />
       </Col>
     </Row>
   );
