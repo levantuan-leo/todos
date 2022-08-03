@@ -27,13 +27,17 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(authService.auth, (currentUser) => {
-      console.log(currentUser);
-      dispatch(getMeThunk(currentUser));
+    const unsubscribe = onAuthStateChanged(
+      authService.auth,
+      async (currentUser) => {
+        console.log(currentUser);
+        const res = await dispatch(getMeThunk(currentUser));
+        console.log(res);
 
-      // get all todos
-      dispatch(fetchTodosThunk());
-    });
+        // get all todos
+        dispatch(fetchTodosThunk());
+      }
+    );
 
     return () => {
       unsubscribe();

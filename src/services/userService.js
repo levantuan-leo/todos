@@ -1,18 +1,17 @@
 import axiosClient from "./axiosClient";
-import { auth } from "./authService";
 
-const checkUser = async () => {
+const checkUser = async (email) => {
   try {
-    const res = await axiosClient.get(`user?email=${auth.currentUser.email}`);
+    const res = await axiosClient.get(`user?email=${email}`);
     return res.data;
   } catch (error) {
     console.log(error);
   }
 };
 
-const fetchUser = async () => {
+const fetchUser = async (userId) => {
   try {
-    const res = await axiosClient.get(`user/${auth.currentUser.uid}`);
+    const res = await axiosClient.get(`user/${userId}`);
     return res.data;
   } catch (error) {
     console.log(error);

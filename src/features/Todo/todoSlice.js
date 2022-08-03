@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { todoService } from "../../services";
-import { authService } from "../../services";
+import { isObjectEmpty } from "../../utils";
 
 const initialValues = {
   todos: [],
@@ -122,9 +122,10 @@ const fetchTodosThunk = createAsyncThunk(
   async (payload, { dispatch, getState, rejectWithValue }) => {
     const pagination = payload || getState().todos.pagination;
     dispatch(setPagination(pagination));
+    const currentUser = getState().auth.user;
 
-    if (authService.auth.currentUser) {
-      const todos = await todoService.fetchTodos();
+    if (!isObjectEmpty(currentUser)) {
+      const todos = await todoService.fetchTodos(currentUser.id);
       return todos;
     } else {
       // User are not logged in
@@ -136,9 +137,11 @@ const fetchTodosThunk = createAsyncThunk(
 
 const addTodoThunk = createAsyncThunk(
   "todos/addTodo",
-  async (newTodo, { dispatch, rejectWithValue }) => {
-    if (authService.auth.currentUser) {
-      const res = await todoService.insertTodo(newTodo);
+  async (newTodo, { dispatch, rejectWithValue, getState }) => {
+    const currentUser = getState().auth.user;
+
+    if (!isObjectEmpty(currentUser)) {
+      const res = await todoService.insertTodo(currentUser.id, newTodo);
       return res;
     } else {
       dispatch(addTodo(newTodo));
@@ -150,11 +153,13 @@ const addTodoThunk = createAsyncThunk(
 const deleteTodoThunk = createAsyncThunk(
   "todos/deleteTodo",
   async (todoId, { dispatch, rejectWithValue, getState }) => {
-    if (authService.auth.currentUser) {
-      // currently not use response
-      await todoService.deleteTodo(todoId);
+    const currentUser = getState().auth.user;
 
-      const todos = await todoService.fetchTodos();
+    if (!isObjectEmpty(!isObjectEmpty(currentUser))) {
+      // currently not use response
+      await todoService.deleteTodo(currentUser.id, todoId);
+
+      const todos = await todoService.fetchTodos(currentUser.id);
       return todos;
     } else {
       dispatch(deleteTodo(todoId));
@@ -165,9 +170,11 @@ const deleteTodoThunk = createAsyncThunk(
 
 const updateTodoThunk = createAsyncThunk(
   "todos/updateTodo",
-  async (editedTodo, { dispatch, rejectWithValue }) => {
-    if (authService.auth.currentUser) {
-      const res = await todoService.updateTodo(editedTodo);
+  async (editedTodo, { dispatch, rejectWithValue, getState }) => {
+    const currentUser = getState().auth.user;
+
+    if (!isObjectEmpty(currentUser)) {
+      const res = await todoService.updateTodo(currentUser.id, editedTodo);
       return res;
     } else {
       dispatch(updateTodo(editedTodo));

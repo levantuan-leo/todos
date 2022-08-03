@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { authService, userService } from "../../services";
+import { isObjectEmpty } from "../../utils";
 
 const authSlice = createSlice({
   name: "auth",
@@ -26,17 +27,13 @@ const authSlice = createSlice({
 
 const getMeThunk = createAsyncThunk(
   "auth/getMe",
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, getState }) => {
     const currentUser = authService.auth.currentUser;
 
     if (currentUser) {
-      let res = await userService.checkUser();
+      let res = await userService.checkUser(currentUser.email);
 
-      // debugger;
-
-      if (res.length > 0) {
-        res = await userService.fetchUser();
-      } else {
+      if (res.length === 0) {
         const user = {
           name: currentUser.displayName,
           email: currentUser.email,
@@ -45,10 +42,10 @@ const getMeThunk = createAsyncThunk(
         };
 
         res = await userService.addUser(user);
+        return res;
       }
-      // debugger;
 
-      return res;
+      return res[0];
     } else {
       return rejectWithValue("You are not logged in.");
     }

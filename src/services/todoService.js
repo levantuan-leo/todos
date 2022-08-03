@@ -1,10 +1,9 @@
 import axiosClient from "./axiosClient";
-import { auth } from "./authService";
 
-const fetchTodos = async (pagination) => {
+const fetchTodos = async (userId, pagination) => {
   try {
     const { limit, page } = pagination ?? {};
-    const res = await axiosClient.get(`user/${auth.currentUser.uid}/todos`, {
+    const res = await axiosClient.get(`user/${userId}/todos`, {
       params: { limit, page },
     });
     console.log("[getTodos]: ", res);
@@ -15,12 +14,9 @@ const fetchTodos = async (pagination) => {
   }
 };
 
-const insertTodo = async (payload = {}) => {
+const insertTodo = async (userId, payload = {}) => {
   try {
-    const res = await axiosClient.post(
-      `user/${auth.currentUser.uid}/todos`,
-      payload
-    );
+    const res = await axiosClient.post(`user/${userId}/todos`, payload);
     console.log("[insertTodo]: ", res);
     //---------------------
     return res.data;
@@ -29,11 +25,9 @@ const insertTodo = async (payload = {}) => {
   }
 };
 
-const deleteTodo = async (id) => {
+const deleteTodo = async (userId, todoId) => {
   try {
-    const res = await axiosClient.delete(
-      `user/${auth.currentUser.uid}/todos/${id}`
-    );
+    const res = await axiosClient.delete(`user/${userId}/todos/${todoId}`);
     console.log("[deleteTodo]: ", res);
     //---------------------
     return res.data;
@@ -42,10 +36,10 @@ const deleteTodo = async (id) => {
   }
 };
 
-const updateTodo = async (payload = {}) => {
+const updateTodo = async (userId, payload = {}) => {
   try {
     const res = await axiosClient.put(
-      `user/${auth.currentUser.uid}/todos/${payload.id}`,
+      `user/${userId}/todos/${payload.id}`,
       payload
     );
     console.log("[updateTodo]: ", res);
