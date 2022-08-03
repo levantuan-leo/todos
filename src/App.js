@@ -31,8 +31,7 @@ function App() {
       authService.auth,
       async (currentUser) => {
         console.log(currentUser);
-        const res = await dispatch(getMeThunk(currentUser));
-        console.log(res);
+        await dispatch(getMeThunk(currentUser));
 
         // get all todos
         dispatch(fetchTodosThunk());
