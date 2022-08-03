@@ -15,6 +15,7 @@ import { authService } from "../../services";
 import { useRef } from "react";
 import PopoverHeader from "./Popover";
 import CustomTooltip from "../../custom-antd/Tooltip";
+import { isObjectEmpty } from "../../utils";
 
 function Header() {
   const user = useSelector((state) => state.auth.user);
@@ -57,9 +58,9 @@ function Header() {
           boxShadow: "0 0 5px 1px #bfbfbf",
         }}
       >
-        {!user ? (
+        {isObjectEmpty(user) ? (
           <CustomTooltip title="Log in">
-            <Link to="/user">
+            <Link to="/auth">
               <LoginOutlined />
             </Link>
           </CustomTooltip>
@@ -96,7 +97,7 @@ function Header() {
                 }}
               >
                 <CustomTooltip title="User's profile">
-                  <Link to={"/"}>
+                  <Link to={"/profile"}>
                     <UserOutlined />
                   </Link>
                 </CustomTooltip>

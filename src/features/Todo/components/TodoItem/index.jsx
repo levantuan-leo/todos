@@ -36,7 +36,7 @@ export default function TodoItem(props) {
         <div>
           {!status && (
             <Tooltip title={"Edit"} placement="bottom">
-              <Link to={`/${id}`}>
+              <Link to={`/todos/${id}`}>
                 <Button type="text" icon={<EditOutlined />} />
               </Link>
             </Tooltip>

@@ -18,7 +18,7 @@ function Popover({ user }) {
     >
       <Avatar src={user.photoURL} size="large" alt="User" />
       <Title level={5} style={{ marginBottom: 0, marginTop: 15 }}>
-        {user.displayName}
+        {user.name}
       </Title>
       <Text type="secondary">{user.email}</Text>
     </Space>

@@ -1,13 +1,15 @@
 import { onAuthStateChanged } from "firebase/auth";
 import { lazy, Suspense, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 import NotFound from "./components/NotFound";
 import Auth from "./features/Auth";
+import ProtectedRoute from "./components/ProtectedRoute";
 import { authService } from "./services";
-import { setUser } from "./features/Auth/authSlice";
+import { getMeThunk } from "./features/Auth/authSlice";
 import { fetchTodosThunk } from "./features/Todo/todoSlice";
+import Profile from "./features/Profile";
 
 //------------------mirage js--------------------------
 // import { makeServer } from "./server";
@@ -27,7 +29,7 @@ function App() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(authService.auth, (currentUser) => {
       console.log(currentUser);
-      dispatch(setUser(currentUser));
+      dispatch(getMeThunk(currentUser));
 
       // get all todos
       dispatch(fetchTodosThunk());
@@ -42,9 +44,19 @@ function App() {
     <Suspense fallback={<div>Loading ...</div>}>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Todo />} />
-          <Route path="/:todoId" element={<Todo />} />
-          <Route path="user/*" element={<Auth />} />
+          <Route path="/" element={<Navigate to="/todos" replace />} />
+          <Route path="todos" element={<Todo />}>
+            <Route path=":todoId" element={<Todo />} />
+          </Route>
+          <Route path="auth/*" element={<Auth />} />
+          <Route
+            path="profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
