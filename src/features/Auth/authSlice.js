@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { authService, userService } from "../../services";
-import { isObjectEmpty } from "../../utils";
 
 const authSlice = createSlice({
   name: "auth",
