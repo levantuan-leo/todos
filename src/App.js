@@ -30,7 +30,7 @@ function App() {
     const unsubscribe = onAuthStateChanged(
       authService.auth,
       async (currentUser) => {
-        console.log(currentUser);
+        console.log("[currentUser]: ", currentUser);
         await dispatch(getMeThunk(currentUser));
 
         // get all todos

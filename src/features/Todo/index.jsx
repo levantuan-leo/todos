@@ -7,6 +7,8 @@ import Header from "../../components/Header";
 const { Title } = Typography;
 
 function Todo() {
+  console.log("re-render / Todo");
+
   return (
     <div style={{ padding: "5vh 0" }}>
       <div

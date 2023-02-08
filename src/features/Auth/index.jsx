@@ -35,7 +35,7 @@ function Auth() {
   };
 
   return (
-    <div style={{ backgroundColor: "white" }}>
+    <div style={{ backgroundColor: "white", minHeight: '100vh', display:'flex', flexDirection: 'column' }}>
       <Header
         style={{
           height: "auto",
@@ -79,7 +79,7 @@ function Auth() {
         </div>
       </Header>
 
-      <Content style={{ padding: "0 35%", margin: "30px 0" }}>
+      <Content style={{ padding: "0 35%", margin: "30px 0", flex: 1 }}>
         <div>
           <h4
             style={{

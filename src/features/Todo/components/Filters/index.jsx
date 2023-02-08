@@ -10,9 +10,9 @@ const { Search } = Input;
 
 export default function Filters() {
   const dispatch = useDispatch();
-  const searchText = useSelector((state) => state.filters.search);
-  const status = useSelector((state) => state.filters.status);
-  const priorities = useSelector((state) => state.filters.priorities);
+  const { searchText, status, priorities } = useSelector(
+    (state) => state.filters
+  );
 
   const handleSearchChange = (value) => {
     const action = searchFilterChange(value);

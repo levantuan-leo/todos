@@ -15,7 +15,7 @@ function SignIn() {
       <SignInForm initialValues={initialValues} onSubmit={handleSubmit} />
       <Divider />
       <div style={{ textAlign: "center" }}>
-        Don't have an account? <Link to="/user/sign-up">register now!</Link>
+        Don't have an account? <Link to="/auth/sign-up">register now!</Link>
       </div>
     </>
   );

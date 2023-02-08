@@ -14,7 +14,7 @@ import Spinner from "../../../../components/Spinner";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import TodoForm from "../TodoForm";
 
-export default function TodoList() {
+function TodoList() {
   const dispatch = useDispatch();
   // ------------------------
   const navigate = useNavigate();
@@ -103,3 +103,5 @@ export default function TodoList() {
     </Row>
   );
 }
+
+export default TodoList;

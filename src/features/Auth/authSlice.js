@@ -26,7 +26,7 @@ const authSlice = createSlice({
 
 const getMeThunk = createAsyncThunk(
   "auth/getMe",
-  async (_, { rejectWithValue, getState }) => {
+  async (_, { rejectWithValue }) => {
     const currentUser = authService.auth.currentUser;
 
     if (currentUser) {
